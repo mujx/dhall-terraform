@@ -1,0 +1,1 @@
+{ ttl : Natural, type : Text }

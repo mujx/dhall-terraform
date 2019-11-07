@@ -1,0 +1,100 @@
+cabal-version:       2.0
+name:                terraform-dhall
+version:             0.1.0
+synopsis:            Creates Terraform resources using Dhall
+description:         Generate Dhall types for an arbitrary Terraform provider using the provider schema.
+license:             MIT
+license-file:        LICENSE
+author:              Konstantinos Sideris
+maintainer:          siderisk@auth.gr
+copyright:           2019 Konstantinos Sideris
+category:            Utility
+build-type:          Simple
+extra-doc-files:     README.md
+                   , CHANGELOG.md
+tested-with:         GHC == 8.6.5
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Terraform.Types
+                     , Terraform.Convert
+
+
+  build-depends:       base                ^>= 4.12.0.0
+                     , aeson
+                     , aeson-casing
+                     , text
+                     , containers
+                     , split
+                     , pretty-simple
+                     , dhall                >= 1.27 && < 1.28
+                     , turtle
+
+  ghc-options:         -Wall
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -Wmissing-export-lists
+                       -Wpartial-fields
+
+  default-language:    Haskell2010
+
+executable terraform-dhall
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  other-modules:       Paths_terraform_dhall
+
+  build-depends:       base ^>= 4.12.0.0
+                     , terraform-dhall
+                     , optparse-applicative
+                     , bytestring
+                     , aeson
+                     , dhall                >= 1.27 && < 1.28
+                     , prettyprinter
+                     , containers
+                     , pretty-simple
+                     , text
+                     , turtle
+
+
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -Wmissing-export-lists
+                       -Wpartial-fields
+
+  default-language:    Haskell2010
+
+test-suite terraform-dhall-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+
+  build-depends:       base ^>= 4.12.0.0
+                     , terraform-dhall
+
+
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -Wmissing-export-lists
+                       -Wpartial-fields
+
+  default-language:    Haskell2010

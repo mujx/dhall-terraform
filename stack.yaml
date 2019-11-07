@@ -1,0 +1,11 @@
+resolver: lts-14.8
+
+ghc-options:
+  "$locals": -fhide-source-paths
+
+extra-deps:
+- dhall-1.27.0@sha256:b522d6b534949e65771ed0179afc1488e4de2b185af5ed38e4806a6720db51bf,30519
+
+nix:
+  packages:
+  - zlib

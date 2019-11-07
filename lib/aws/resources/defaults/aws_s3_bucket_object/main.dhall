@@ -1,0 +1,23 @@
+{ acl = None Text
+, cache_control = None Text
+, content = None Text
+, content_base64 = None Text
+, content_disposition = None Text
+, content_encoding = None Text
+, content_language = None Text
+, content_type = None Text
+, etag = None Text
+, force_destroy = None Bool
+, id = None Text
+, kms_key_id = None Text
+, metadata = None (List { mapKey : Text, mapValue : Text })
+, object_lock_legal_hold_status = None Text
+, object_lock_mode = None Text
+, object_lock_retain_until_date = None Text
+, server_side_encryption = None Text
+, source = None Text
+, storage_class = None Text
+, tags = None (List { mapKey : Text, mapValue : Text })
+, version_id = None Text
+, website_redirect = None Text
+}

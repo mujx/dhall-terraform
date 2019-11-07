@@ -1,0 +1,1 @@
+{ delete = None Text }

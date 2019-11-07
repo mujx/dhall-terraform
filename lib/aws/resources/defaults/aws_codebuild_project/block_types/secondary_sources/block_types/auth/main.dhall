@@ -1,0 +1,1 @@
+{ resource = None Text }
