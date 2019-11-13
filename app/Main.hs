@@ -27,6 +27,14 @@ import Terraform.Types
 import qualified Turtle
 import Turtle ((</>))
 
+-- The kind of Dhall expressions we're generating.
+--
+-- Type expressions are also used to generate the default ones.
+data RenderMode
+  = TypesMode
+  | DefaultsMode
+  deriving (Show)
+
 -- | Pretty print dhall expressions.
 pretty :: Pretty.Pretty a => a -> Text
 pretty =
@@ -74,23 +82,28 @@ saveType ::
   (Expr -> Maybe Expr) ->
   (Expr -> Dhall.Import -> Expr) ->
   Turtle.FilePath ->
-  Bool ->
+  RenderMode ->
   Text ->
   BlockRepr ->
   IO ()
-saveType mapExpr genImports parentPath isDef name blk = do
+saveType mapExpr genImports parentPath renderMode name blk = do
   let indexPath      = parentPath </> Turtle.fromText name
       blockFile      = indexPath </> Turtle.fromText "main.dhall"
       blockTypesPath = indexPath </> Turtle.fromText "block_types"
 
   Turtle.mktree indexPath
 
-  writeDhall blockFile (if isDef then blockDefExpr else blockExpr)
+  writeDhall
+    blockFile
+    ( case renderMode of
+        DefaultsMode -> blockDefExpr
+        TypesMode -> blockExpr
+    )
 
   unless
     (null rawNested)
     ( Turtle.mktree blockTypesPath
-        >> mapM_ (uncurry (saveType mapExpr genImports blockTypesPath isDef)) rawNested
+        >> mapM_ (uncurry (saveType mapExpr genImports blockTypesPath renderMode)) rawNested
     )
   where
     blockExpr :: Expr
@@ -126,9 +139,9 @@ saveType mapExpr genImports parentPath isDef name blk = do
                           { Dhall.file = "main.dhall",
                             Dhall.directory = Dhall.Directory
                               { Dhall.components =
-                                  if isDef
-                                    then getTypeImport defP
-                                    else [nestedName, "block_types"]
+                                  case renderMode of
+                                    DefaultsMode -> getTypeImport defP
+                                    TypesMode    -> [nestedName, "block_types"]
                               }
                           }
                       },
@@ -149,8 +162,8 @@ setup extract rootDir providerName doc = do
       defaultsPath = rootDir </> Turtle.fromText "defaults"
       blocks       = M.toList $ M.map _schemaReprBlock (extract providerName doc)
 
-  mapM_ (uncurry (saveType Just      toTypeImport    typesPath    False)) blocks
-  mapM_ (uncurry (saveType toDefault toDefaultImport defaultsPath True))  blocks
+  mapM_ (uncurry (saveType Just      toTypeImport    typesPath    TypesMode))    blocks
+  mapM_ (uncurry (saveType toDefault toDefaultImport defaultsPath DefaultsMode)) blocks
 
 data CliOpts
   = CliOpts
@@ -204,8 +217,8 @@ main = do
       resourcesDir   = mainDir </> Turtle.fromText "resources"
       dataSourcesDir = mainDir </> Turtle.fromText "data_sources"
 
-  awsDoc <- readSchemaFile (optSchemaFile parsedOpts)
+  doc <- readSchemaFile (optSchemaFile parsedOpts)
 
-  setup getProvider    providerDir    providerName awsDoc
-  setup getResources   resourcesDir   providerName awsDoc
-  setup getDataSources dataSourcesDir providerName awsDoc
+  setup getProvider    providerDir    providerName doc
+  setup getResources   resourcesDir   providerName doc
+  setup getDataSources dataSourcesDir providerName doc
