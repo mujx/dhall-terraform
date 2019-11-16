@@ -8,7 +8,6 @@ jobs:
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - dhall-terraform-{{ checksum "stack.yaml" }}-{{ checksum "stack.yaml.lock" }}
             - dhall-terraform-{{ checksum "stack.yaml" }}
       - run:
           name: Resolve/Update Dependencies
@@ -21,7 +20,7 @@ jobs:
           command: stack --no-terminal build
       - save_cache:
           name: Cache Dependencies
-          key: dhall-terraform-{{ checksum "stack.yaml" }}-{{ checksum "stack.yaml.lock" }}
+          key: dhall-terraform-{{ checksum "stack.yaml" }}
           paths:
             - "/root/.stack"
             - ".stack-work"
