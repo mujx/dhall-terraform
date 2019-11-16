@@ -3,7 +3,7 @@
 , stdenv, text, turtle
 }:
 mkDerivation {
-  pname = "terraform-dhall";
+  pname = "dhall-terraform";
   version = "0.1.0";
   src = ./.;
   isLibrary = true;

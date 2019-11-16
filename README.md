@@ -1,8 +1,8 @@
-# terraform-dhall
+# dhall-terraform
 
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-`terraform-dhall` uses terraform's provider schema to generate Dhall types & defaults
+`dhall-terraform` uses terraform's provider schema to generate Dhall types & defaults
 for each `resource`, `data_source` & `provider` block. 
 
 This allows us to use Dhall to create cloud resources instead of HCL & avoid its
@@ -15,7 +15,7 @@ project.
 
 ### Usage
 
-- Use `terraform-dhall` to generate the types of your provider. 
+- Use `dhall-terraform` to generate the types of your provider. 
   See [here](https://www.terraform.io/docs/commands/providers/schema.html) how
   you can generate the provider's schema.
 - Write the resources in Dhall. Checkout the [examples](./examples).
@@ -25,9 +25,9 @@ project.
 ### Options
 
 ```
-terraform-dhall :: v0.1.0
+dhall-terraform :: v0.1.0
 
-Usage: terraform-dhall (-f|--schema-file SCHEMA) (-p|--provider-name PROVIDER)
+Usage: dhall-terraform (-f|--schema-file SCHEMA) (-p|--provider-name PROVIDER)
                        [-o|--output-dir OUT_DIR]
   Generate Dhall types from Terraform resources
 

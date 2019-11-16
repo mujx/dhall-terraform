@@ -21,7 +21,7 @@ import qualified Dhall.Map
 import qualified Dhall.Pretty
 import qualified Dhall.Util
 import qualified Options.Applicative as Opt
-import Paths_terraform_dhall (version)
+import Paths_dhall_terraform (version)
 import Terraform.Convert
 import Terraform.Types
 import qualified Turtle
@@ -203,7 +203,7 @@ opts =
     (Opt.helper <*> cliOpts)
     ( Opt.fullDesc
         <> Opt.progDesc "Generate Dhall types from Terraform resources"
-        <> Opt.header ("terraform-dhall :: v" <> showVersion version)
+        <> Opt.header ("dhall-terraform :: v" <> showVersion version)
     )
 
 main :: IO ()

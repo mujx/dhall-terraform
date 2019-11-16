@@ -1,6 +1,6 @@
 # Changelog
 
-`terraform-dhall` uses [PVP Versioning][1].
+`dhall-terraform` uses [PVP Versioning][1].
 
 
 0.1.0
