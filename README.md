@@ -41,18 +41,18 @@ let mkRes =
       → λ(body : a)
       → Prelude.JSON.keyValue a name body
 
--- Bring in the necessary resources.
+-- Import the necessary resources.
 let AwsProvider =
       { default =
           https://raw.githubusercontent.com/mujx/dhall-terraform/4d689ce526a6262c3b58af3cd55c960ab8fea888/lib/aws/provider/defaults/provider/main.dhall
-      , type =
+      , Type =
           https://raw.githubusercontent.com/mujx/dhall-terraform/4d689ce526a6262c3b58af3cd55c960ab8fea888/lib/aws/provider/types/provider/main.dhall
       }
 
 let AwsS3Bucket =
       { default =
           https://raw.githubusercontent.com/mujx/dhall-terraform/4d689ce526a6262c3b58af3cd55c960ab8fea888/lib/aws/resources/defaults/aws_s3_bucket/main.dhall
-      , type =
+      , Type =
           https://raw.githubusercontent.com/mujx/dhall-terraform/4d689ce526a6262c3b58af3cd55c960ab8fea888/lib/aws/resources/types/aws_s3_bucket/main.dhall
       }
 
@@ -67,31 +67,28 @@ let buckets =
       : List Bucket
 
 let toBucketResource
-    : Bucket → jsonRes AwsS3Bucket.type
+    : Bucket → jsonRes AwsS3Bucket.Type
     =   λ(bkt : Bucket)
       → mkRes
-          AwsS3Bucket.type
+          AwsS3Bucket.Type
           bkt.name
-          (   AwsS3Bucket.default
-            ⫽ { tags = Some [ { mapKey = "content", mapValue = bkt.name } ]
-              , region = Some defaultRegion
-              }
-          )
+          AwsS3Bucket::{
+          , tags = Some [ { mapKey = "content", mapValue = bkt.name } ]
+          , region = Some defaultRegion
+          }
 
 let awsProvider =
       mkRes
-        AwsProvider.type
+        AwsProvider.Type
         "aws"
-        (   AwsProvider.default
-          ⫽ { region = defaultRegion, version = Some "2.34.0" }
-        )
+        AwsProvider::{ region = defaultRegion, version = Some "2.34.0" }
 
 in  { provider = [ awsProvider ]
     , resource =
         { aws_s3_bucket =
             Prelude.List.map
               Bucket
-              (jsonRes AwsS3Bucket.type)
+              (jsonRes AwsS3Bucket.Type)
               toBucketResource
               buckets
         }

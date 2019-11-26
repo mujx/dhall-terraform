@@ -1,8 +1,8 @@
 --
--- Usage: 
+-- Usage:
 --
 -- Generate resources in the terraform JSON syntax
--- 
+--
 -- $ dhall-to-json <<< ./main.dhall > main.tf.json
 --
 -- Run terraform to create the given resources.
@@ -15,22 +15,22 @@ let JSON =
 
 let AwsS3Bucket =
       { default = ./../lib/aws/resources/defaults/aws_s3_bucket/main.dhall
-      , type = ./../lib/aws/resources/types/aws_s3_bucket/main.dhall
+      , Type = ./../lib/aws/resources/types/aws_s3_bucket/main.dhall
       }
 
 let AwsVPC =
       { default = ./../lib/aws/resources/defaults/aws_vpc/main.dhall
-      , type = ./../lib/aws/resources/types/aws_vpc/main.dhall
+      , Type = ./../lib/aws/resources/types/aws_vpc/main.dhall
       }
 
 let AwsEbsVolume =
       { default = ./../lib/aws/resources/defaults/aws_ebs_volume/main.dhall
-      , type = ./../lib/aws/resources/types/aws_ebs_volume/main.dhall
+      , Type = ./../lib/aws/resources/types/aws_ebs_volume/main.dhall
       }
 
 let AwsProvider =
       { default = ./../lib/aws/provider/defaults/provider/main.dhall
-      , type = ./../lib/aws/provider/types/provider/main.dhall
+      , Type = ./../lib/aws/provider/types/provider/main.dhall
       }
 
 let mkRes =
@@ -54,40 +54,35 @@ let groupResources =
 
 let vol =
       mkRes
-        AwsEbsVolume.type
+        AwsEbsVolume.Type
         "volume_c1"
-        (AwsEbsVolume.default ⫽ { availability_zone = "us-east-1a" })
+        AwsEbsVolume::{ availability_zone = "us-east-1a" }
 
-let mainVPC =
-      mkRes AwsVPC.type "main" (AwsVPC.default ⫽ { cidr_block = "10.0.0.0/16" })
+let mainVPC = mkRes AwsVPC.Type "main" AwsVPC::{ cidr_block = "10.0.0.0/16" }
 
 let imagesBucket =
       mkRes
-        AwsS3Bucket.type
+        AwsS3Bucket.Type
         "images"
-        (   AwsS3Bucket.default
-          ⫽ { tags = Some [ { mapKey = "content", mapValue = "images" } ]
-            , region = Some "us-east-1"
-            }
-        )
+        AwsS3Bucket::{
+        , tags = Some [ { mapKey = "content", mapValue = "images" } ]
+        , region = Some "us-east-1"
+        }
 
 let filesBucket =
       mkRes
-        AwsS3Bucket.type
+        AwsS3Bucket.Type
         "files"
-        (   AwsS3Bucket.default
-          ⫽ { tags = Some [ { mapKey = "content", mapValue = "files" } ]
-            , region = Some "us-east-1"
-            }
-        )
+        AwsS3Bucket::{
+        , tags = Some [ { mapKey = "content", mapValue = "files" } ]
+        , region = Some "us-east-1"
+        }
 
 let awsProvider =
       mkRes
-        AwsProvider.type
+        AwsProvider.Type
         "aws"
-        (   AwsProvider.default
-          ⫽ { region = "us-east-1", version = Some "2.34.0" }
-        )
+        AwsProvider::{ region = "us-east-1", version = Some "2.34.0" }
 
 in  { provider = [ awsProvider ]
     , resource =
