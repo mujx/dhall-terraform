@@ -162,7 +162,7 @@ main :: IO ()
 main = do
   parsedOpts <- Opt.execParser opts
 
-  let outputDir      = Turtle.fromText "./lib"
+  let outputDir      = Turtle.fromText $ pack $ optOutputDir parsedOpts
       providerName   = pack $ optProviderName parsedOpts
       mainDir        = outputDir </> Turtle.fromText providerName
       providerDir    = mainDir </> Turtle.fromText "provider"
