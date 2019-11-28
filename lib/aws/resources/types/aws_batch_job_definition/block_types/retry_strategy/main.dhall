@@ -1,1 +1,0 @@
-{ attempts : Optional Natural }

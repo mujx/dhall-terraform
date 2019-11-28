@@ -1,1 +1,0 @@
-{ id : Text, type : Text }

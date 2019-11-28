@@ -1,1 +1,0 @@
-{ arn : Text, revision : Natural }

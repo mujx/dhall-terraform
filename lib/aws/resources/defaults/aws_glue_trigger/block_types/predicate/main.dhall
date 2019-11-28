@@ -1,1 +1,0 @@
-{ logical = None Text }

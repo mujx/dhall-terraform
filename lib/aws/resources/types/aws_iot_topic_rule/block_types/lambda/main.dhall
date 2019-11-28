@@ -1,1 +1,0 @@
-{ function_arn : Text }

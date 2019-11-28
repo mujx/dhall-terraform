@@ -1,1 +1,0 @@
-{ delete : Optional Text }

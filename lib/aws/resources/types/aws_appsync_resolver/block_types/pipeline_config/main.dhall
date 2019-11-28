@@ -1,1 +1,0 @@
-{ functions : Optional (List Text) }

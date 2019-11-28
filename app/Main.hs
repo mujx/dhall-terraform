@@ -5,7 +5,6 @@ module Main
   )
 where
 
-import Control.Monad (unless)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as B
 import Data.Map.Strict ((!), Map)
@@ -27,13 +26,6 @@ import Terraform.Types
 import qualified Turtle
 import Turtle ((</>))
 
--- The kind of Dhall expressions we're generating.
---
--- Type expressions are also used to generate the default ones.
-data RenderMode
-  = TypesMode
-  | DefaultsMode
-  deriving (Show)
 
 -- | Pretty print dhall expressions.
 pretty :: Pretty.Pretty a => a -> Text
@@ -74,82 +66,42 @@ writeDhall filepath expr = do
         }
     )
 
--- | Each Terraform block will have its own directory where the `main.dhall` file will
--- contain the type definition. Another directory named `block_types` will be created which
--- will contain the type definitions for each block type (again `main.dhall` is the entrypoint).
--- The directory tree continues like so, until all block types are defined.
-saveType ::
-  (Expr -> Maybe Expr) ->
-  (Expr -> Dhall.Import -> Expr) ->
-  Turtle.FilePath ->
-  RenderMode ->
-  Text ->
-  BlockRepr ->
-  IO ()
-saveType mapExpr genImports parentPath renderMode name blk = do
-  let indexPath      = parentPath </> Turtle.fromText name
-      blockFile      = indexPath </> Turtle.fromText "main.dhall"
-      blockTypesPath = indexPath </> Turtle.fromText "block_types"
-
-  Turtle.mktree indexPath
-
-  writeDhall
-    blockFile
-    ( case renderMode of
-        DefaultsMode -> blockDefExpr
-        TypesMode -> blockExpr
-    )
-
-  unless
-    (null rawNested)
-    ( Turtle.mktree blockTypesPath
-        >> mapM_ (uncurry (saveType mapExpr genImports blockTypesPath renderMode)) rawNested
-    )
+-- | Generate a completion record for the resource.
+mkRecord :: Turtle.FilePath -> Text -> BlockRepr -> IO ()
+mkRecord rootPath name block = do
+  let recordPath = rootPath </> Turtle.fromText (name <> ".dhall")
+  let record =
+        Dhall.RecordLit $
+          Dhall.Map.fromList
+            [ ("Type", mkBlockType block),
+              ("default", mkBlockDefault block)
+            ]
+  Turtle.mktree rootPath
+  writeDhall recordPath record
   where
-    blockExpr :: Expr
-    blockExpr = Dhall.Record $ Dhall.Map.fromList (attrs <> nestedImports)
+    mkBlockType :: BlockRepr -> Expr
+    mkBlockType b = Dhall.Record $ Dhall.Map.fromList (typeAttrs b <> typeNested b)
 
-    blockDefExpr :: Expr
-    blockDefExpr = Dhall.RecordLit $ Dhall.Map.fromList (attrs <> nestedImports)
+    mkBlockDefault :: BlockRepr -> Expr
+    mkBlockDefault b = Dhall.RecordLit $ Dhall.Map.fromList (defAttrs b <> defNested b)
 
-    attrs :: [(Text, Expr)]
-    attrs = M.toList $ M.mapMaybe mapExpr $ M.map attrToType (fromMaybe noAttrs $ _attributes blk)
+    defAttrs  = attrs toDefault
+    typeAttrs = attrs Just
 
-    nested :: [(Text, Expr)]
-    nested = M.toList $ M.mapMaybe mapExpr $ M.map nestedToType (fromMaybe noNestedBlocks $ _blockTypes blk)
+    defNested  = nested toDefault
+    typeNested = nested Just
 
-    rawNested :: [(Text, BlockRepr)]
-    rawNested = M.toList $ M.map _block (fromMaybe noNestedBlocks $ _blockTypes blk)
+    attrs :: (Expr -> Maybe a) -> BlockRepr -> [(Text, a)]
+    attrs mapExpr b =
+      M.toList
+        $ M.mapMaybe mapExpr
+        $ M.map attrToType (fromMaybe noAttrs $ _attributes b)
 
-    nestedImports =
-      map
-        ( \(nestedName, nestedTy) ->
-            let currDefPath =
-                  parentPath
-                    </> Turtle.fromText name
-                    </> Turtle.fromText "block_types"
-                    </> Turtle.fromText nestedName
-                defP = case Turtle.toText currDefPath of
-                  Left e -> error (show e)
-                  Right v -> v
-                importTy = Dhall.Import
-                  { Dhall.importHashed = Dhall.ImportHashed
-                      { Dhall.hash = Nothing,
-                        Dhall.importType = Dhall.Local Dhall.Here Dhall.File
-                          { Dhall.file = "main.dhall",
-                            Dhall.directory = Dhall.Directory
-                              { Dhall.components =
-                                  case renderMode of
-                                    DefaultsMode -> getTypeImport defP
-                                    TypesMode    -> [nestedName, "block_types"]
-                              }
-                          }
-                      },
-                    Dhall.importMode = Dhall.Code
-                  }
-             in (nestedName, genImports nestedTy importTy)
-        )
-        nested
+    nested :: (Expr -> Maybe a) -> BlockRepr -> [(Text, a)]
+    nested mapExpr b =
+      M.toList
+        $ M.mapMaybe mapExpr
+        $ M.map nestedToType (fromMaybe noNestedBlocks $ _blockTypes b)
 
 setup ::
   (Text -> ProviderSchemaRepr -> Map Text SchemaRepr) ->
@@ -157,13 +109,13 @@ setup ::
   Text ->
   ProviderSchemaRepr ->
   IO ()
-setup extract rootDir providerName doc = do
-  let typesPath    = rootDir </> Turtle.fromText "types"
-      defaultsPath = rootDir </> Turtle.fromText "defaults"
-      blocks       = M.toList $ M.map _schemaReprBlock (extract providerName doc)
-
-  mapM_ (uncurry (saveType Just      toTypeImport    typesPath    TypesMode))    blocks
-  mapM_ (uncurry (saveType toDefault toDefaultImport defaultsPath DefaultsMode)) blocks
+setup extract rootDir providerName doc =
+  mapM_
+    ( uncurry (mkRecord rootDir)
+    )
+    blocks
+  where
+    blocks = M.toList $ M.map _schemaReprBlock (extract providerName doc)
 
 data CliOpts
   = CliOpts

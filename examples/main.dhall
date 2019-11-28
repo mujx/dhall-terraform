@@ -13,25 +13,13 @@
 let JSON =
       https://raw.githubusercontent.com/dhall-lang/dhall-lang/8098184d17c3aecc82674a7b874077a7641be05a/Prelude/JSON/package.dhall sha256:0c3c40a63108f2e6ad59f23b789c18eb484d0e9aebc9416c5a4f338c6753084b
 
-let AwsS3Bucket =
-      { default = ./../lib/aws/resources/defaults/aws_s3_bucket/main.dhall
-      , Type = ./../lib/aws/resources/types/aws_s3_bucket/main.dhall
-      }
+let AwsS3Bucket = ./../lib/aws/resources/aws_s3_bucket.dhall
 
-let AwsVPC =
-      { default = ./../lib/aws/resources/defaults/aws_vpc/main.dhall
-      , Type = ./../lib/aws/resources/types/aws_vpc/main.dhall
-      }
+let AwsVPC = ./../lib/aws/resources/aws_vpc.dhall
 
-let AwsEbsVolume =
-      { default = ./../lib/aws/resources/defaults/aws_ebs_volume/main.dhall
-      , Type = ./../lib/aws/resources/types/aws_ebs_volume/main.dhall
-      }
+let AwsEbsVolume = ./../lib/aws/resources/aws_ebs_volume.dhall
 
-let AwsProvider =
-      { default = ./../lib/aws/provider/defaults/provider/main.dhall
-      , Type = ./../lib/aws/provider/types/provider/main.dhall
-      }
+let AwsProvider = ./../lib/aws/provider/provider.dhall
 
 let mkRes =
       λ(a : Type) → λ(name : Text) → λ(body : a) → JSON.keyValue a name body

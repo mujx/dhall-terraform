@@ -5,48 +5,19 @@
 module Terraform.Convert
   ( toType,
     attrToType,
-    blockToType,
     toDefault,
     nestedToType,
     noNestedBlocks,
     noAttrs,
-    toTypeImport,
-    toDefaultImport,
-    getTypeImport,
   )
 where
 
 import qualified Data.Map.Strict as Sm
 import Data.Maybe (fromMaybe)
-import Data.Text (Text, splitOn)
+import Data.Text (Text)
 import qualified Dhall.Core as Dhall
 import qualified Dhall.Map
 import Terraform.Types
-
-getTypeImport :: Text -> [Text]
-getTypeImport fp = reverse $ [".." | _ <- [1 .. 2 * countOfBlocks]] ++ ["types"] ++ rest
-  where
-    rest          = tail $ dropWhile (/= "defaults") ps
-    ps            = splitOn "/" fp
-    countOfBlocks = length [n | n <- ps, "block_types" == n]
-
-toTypeImport :: Expr -> Dhall.Import -> Expr
-toTypeImport nestedTy importTy = case nestedTy of
-  (Dhall.App Dhall.Optional (Dhall.App Dhall.List _)) ->
-    Dhall.App Dhall.Optional (Dhall.App Dhall.List (Dhall.Embed importTy))
-  (Dhall.App Dhall.Optional _) ->
-    Dhall.App Dhall.Optional (Dhall.Embed importTy)
-  (Dhall.App Dhall.List _) ->
-    Dhall.App Dhall.List (Dhall.Embed importTy)
-  _ -> Dhall.Embed importTy
-
-toDefaultImport :: Expr -> Dhall.Import -> Expr
-toDefaultImport nestedTy importTy = case nestedTy of
-  (Dhall.App Dhall.None (Dhall.App Dhall.List _)) ->
-    Dhall.App Dhall.None (Dhall.App Dhall.List (Dhall.Embed importTy))
-  (Dhall.App Dhall.None _) ->
-    Dhall.App Dhall.None (Dhall.Embed importTy)
-  _ -> Dhall.Embed importTy
 
 toDefault :: Expr -> Maybe Expr
 toDefault e = case e of
@@ -79,9 +50,8 @@ nestedToType blk =
 
 -- | Converts an attribute to a Dhall expression.
 attrToType :: Attribute -> Expr
-attrToType attr = case isReq of
-  True -> toType (_attrType attr)
-  _    -> Dhall.App Dhall.Optional $ toType (_attrType attr)
+attrToType attr = if isReq then toType (_attrType attr) 
+                           else Dhall.App Dhall.Optional $ toType (_attrType attr)
   where
     isReq  = fromMaybe False (_attrRequired attr)
 
@@ -92,15 +62,6 @@ noAttrs = Sm.fromList []
 -- | Empty map in case there are not nested blocks.
 noNestedBlocks :: Sm.Map Text BlockType
 noNestedBlocks = Sm.fromList []
-
--- | Converts a Terraform block to a Dhall expression.
-blockToType :: BlockRepr -> Expr
-blockToType blk = Dhall.Record $ Dhall.Map.fromList (attrs <> nested)
-  where
-    attrs = Sm.toList $ Sm.map attrToType (fromMaybe noAttrs $ _attributes blk)
-
-    -- In the final JSON structure the nested block types are equivelant with the regular fields.
-    nested = Sm.toList $ Sm.map nestedToType (fromMaybe noNestedBlocks $ _blockTypes blk)
 
 -- | Converts a Terraform type to a Dhall expression.
 toType :: AttributeType -> Expr

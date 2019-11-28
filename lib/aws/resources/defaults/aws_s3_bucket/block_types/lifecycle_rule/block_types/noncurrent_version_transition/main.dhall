@@ -1,1 +1,0 @@
-{ days = None Natural }
