@@ -103,19 +103,13 @@ mkRecord rootPath name block = do
         $ M.mapMaybe mapExpr
         $ M.map nestedToType (fromMaybe noNestedBlocks $ _blockTypes b)
 
-setup ::
-  (Text -> ProviderSchemaRepr -> Map Text SchemaRepr) ->
-  Turtle.FilePath ->
-  Text ->
-  ProviderSchemaRepr ->
-  IO ()
-setup extract rootDir providerName doc =
+generate :: Turtle.FilePath -> Map Text SchemaRepr -> IO ()
+generate rootDir schemas =
   mapM_
-    ( uncurry (mkRecord rootDir)
-    )
+    (uncurry (mkRecord rootDir))
     blocks
   where
-    blocks = M.toList $ M.map _schemaReprBlock (extract providerName doc)
+    blocks = M.toList $ M.map _schemaReprBlock schemas
 
 data CliOpts
   = CliOpts
@@ -171,6 +165,6 @@ main = do
 
   doc <- readSchemaFile (optSchemaFile parsedOpts)
 
-  setup getProvider    providerDir    providerName doc
-  setup getResources   resourcesDir   providerName doc
-  setup getDataSources dataSourcesDir providerName doc
+  generate providerDir    (getProvider providerName doc)
+  generate resourcesDir   (getResources providerName doc)
+  generate dataSourcesDir (getDataSources providerName doc)
