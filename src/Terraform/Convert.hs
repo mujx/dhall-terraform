@@ -84,6 +84,7 @@ toType (Cont ("map", "string")) =
     $ Dhall.Map.fromList
       [("mapKey", Dhall.Text), ("mapValue", Dhall.Text)]
 toType (Cont ("set", "number")) = Dhall.App Dhall.List Dhall.Natural
+toType (Cont ("list", "number")) = Dhall.App Dhall.List Dhall.Natural
 toType (Cont ("set", "string")) = Dhall.App Dhall.List Dhall.Text
 toType (Cont ("list", "string")) = Dhall.App Dhall.List Dhall.Text
 toType (Comb ("set", ts)) = case ts of

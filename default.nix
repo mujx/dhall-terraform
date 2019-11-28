@@ -1,6 +1,6 @@
 { mkDerivation, aeson, aeson-casing, base, bytestring, containers
-, dhall, optparse-applicative, pretty-simple, prettyprinter, split
-, stdenv, text, turtle
+, dhall, optparse-applicative, prettyprinter, split, stdenv, text
+, turtle
 }:
 mkDerivation {
   pname = "dhall-terraform";
@@ -9,12 +9,11 @@ mkDerivation {
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
-    aeson aeson-casing base containers dhall pretty-simple split text
-    turtle
+    aeson aeson-casing base containers dhall split text turtle
   ];
   executableHaskellDepends = [
     aeson base bytestring containers dhall optparse-applicative
-    pretty-simple prettyprinter text turtle
+    prettyprinter text turtle
   ];
   testHaskellDepends = [ base ];
   doHaddock = false;

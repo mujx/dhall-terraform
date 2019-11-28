@@ -26,7 +26,6 @@ library
                      , text
                      , containers
                      , split
-                     , pretty-simple
                      , dhall                >= 1.27 && < 1.28
                      , turtle
 
@@ -55,7 +54,6 @@ executable dhall-terraform
                      , dhall                >= 1.27 && < 1.28
                      , prettyprinter
                      , containers
-                     , pretty-simple
                      , text
                      , turtle
 
