@@ -43,18 +43,10 @@ let mkRes =
 
 -- Import the necessary resources.
 let AwsProvider =
-      { default =
-          https://raw.githubusercontent.com/mujx/dhall-terraform/4d689ce526a6262c3b58af3cd55c960ab8fea888/lib/aws/provider/defaults/provider/main.dhall
-      , Type =
-          https://raw.githubusercontent.com/mujx/dhall-terraform/4d689ce526a6262c3b58af3cd55c960ab8fea888/lib/aws/provider/types/provider/main.dhall
-      }
+      https://raw.githubusercontent.com/mujx/dhall-terraform/99a96658642aef74f0b01c0da73f2c9a07171f52/lib/aws/provider/provider.dhall
 
 let AwsS3Bucket =
-      { default =
-          https://raw.githubusercontent.com/mujx/dhall-terraform/4d689ce526a6262c3b58af3cd55c960ab8fea888/lib/aws/resources/defaults/aws_s3_bucket/main.dhall
-      , Type =
-          https://raw.githubusercontent.com/mujx/dhall-terraform/4d689ce526a6262c3b58af3cd55c960ab8fea888/lib/aws/resources/types/aws_s3_bucket/main.dhall
-      }
+      https://raw.githubusercontent.com/mujx/dhall-terraform/99a96658642aef74f0b01c0da73f2c9a07171f52/lib/aws/resources/aws_s3_bucket.dhall
 
 let defaultRegion = "us-east-1"
 
