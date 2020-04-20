@@ -1,7 +1,7 @@
 # dhall-terraform
 
 [![CircleCI](https://circleci.com/gh/mujx/dhall-terraform.svg?style=svg)](https://circleci.com/gh/mujx/dhall-terraform)
-[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 
 `dhall-terraform` uses terraform's provider schema to generate Dhall types & defaults
 for each `resource`, `data_source` & `provider` block. 

@@ -3,8 +3,8 @@ name:                dhall-terraform
 version:             0.1.0
 synopsis:            Creates Terraform resources using Dhall
 description:         Generate Dhall types for an arbitrary Terraform provider using the provider schema.
-license:             MIT
-license-file:        LICENSE
+license:             UNLICENSE
+license-file:        UNLICENSE
 author:              Konstantinos Sideris
 maintainer:          siderisk@auth.gr
 copyright:           2019 Konstantinos Sideris

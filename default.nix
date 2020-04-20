@@ -19,5 +19,5 @@ mkDerivation {
   doHaddock = false;
   doCheck = false;
   description = "Creates Terraform resources using Dhall";
-  license = stdenv.lib.licenses.mit;
+  license = stdenv.lib.licenses.unlicense;
 }
